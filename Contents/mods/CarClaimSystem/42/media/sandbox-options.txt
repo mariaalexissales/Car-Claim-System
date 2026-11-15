@@ -1,0 +1,23 @@
+/*----------*/
+/*--ESTRAL--*/
+/*----------*/
+
+VERSION = 1,
+
+option CarClaimSystem.MaxClaimsPerPlayer
+{
+    type = integer, min = 0, max = 1000, default = 3,
+    page = CarClaimSystem, translation = CCS_MaxClaimsPerPlayer,
+}
+
+option CarClaimSystem.InactivityDays
+{
+    type = integer, min = 0, max = 3650, default = 30,
+    page = CarClaimSystem, translation = CCS_InactivityDays,
+}
+
+option CarClaimSystem.IdleShutoffMinutes
+{
+    type = integer, min = 0, max = 1440, default = 10,
+    page = CarClaimSystem, translation = CCS_IdleShutoffMinutes,
+}
