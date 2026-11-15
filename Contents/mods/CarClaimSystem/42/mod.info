@@ -1,0 +1,6 @@
+name=Car Claim System
+id=CarClaimSystem
+author=Estral
+description=Claim a vehicle and decide who may ride, drive, loot, repair or tow it - by Estral
+poster=poster.png
+versionMin=42.20

@@ -1,0 +1,12 @@
+{
+  "Sandbox_CarClaimSystem": "Car Claim System",
+
+  "Sandbox_CCS_MaxClaimsPerPlayer": "Claims Per Player",
+  "Sandbox_CCS_MaxClaimsPerPlayer_tooltip": "How many vehicles one account can have claimed at once. 0 is no limit.",
+
+  "Sandbox_CCS_InactivityDays": "Claim Expiry (Real Days)",
+  "Sandbox_CCS_InactivityDays_tooltip": "A claim lapses when its owner has not logged in for this many real days. 0 means claims never lapse.",
+
+  "Sandbox_CCS_IdleShutoffMinutes": "Idle Engine Shut-off (Real Minutes)",
+  "Sandbox_CCS_IdleShutoffMinutes_tooltip": "Any vehicle left running with nobody in the driver's seat is switched off after this many real minutes, claimed or not. Checked once a minute. 0 turns this off."
+}
