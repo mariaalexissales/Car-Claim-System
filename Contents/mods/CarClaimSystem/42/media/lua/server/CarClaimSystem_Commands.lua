@@ -107,9 +107,14 @@ function CarClaimSystem_Commands.handlers.claim(player, args)
     local existing = CarClaimSystem_State.claimOf(vehicle)
     if existing then return CarClaimSystem_reply(player, false, "AlreadyClaimed", existing.owner) end
 
-    if CarClaimSystem_State.atCap(username) then return CarClaimSystem_reply(player, false, "AtCap") end
+    local trailer = CarClaimSystem.isTrailer(vehicle)
 
-    if CarClaimSystem.isTrailer(vehicle) then
+    if CarClaimSystem_State.atCap(username, trailer) then
+        if trailer then return CarClaimSystem_reply(player, false, "TrailerAtCap") end
+        return CarClaimSystem_reply(player, false, "AtCap")
+    end
+
+    if trailer then
         local puller = vehicle:getVehicleTowedBy()
         local pullerClaim = puller and CarClaimSystem_State.claimOf(puller)
 
@@ -219,6 +224,7 @@ function CarClaimSystem_Commands.handlers.list(player, args)
             y = claim.y,
             z = claim.z,
             ago = claim.seenAt and math.max(0, now - claim.seenAt) or nil,
+            trailer = CarClaimSystem.isTrailerClaim(claim),
             loaded = vehicle ~= nil,
             id = vehicle and vehicle:getId() or nil,
         }
@@ -227,7 +233,8 @@ function CarClaimSystem_Commands.handlers.list(player, args)
     CarClaimSystem_Net.toClient(player, "claims", {
         vehicles = vehicles,
         count = #vehicles,
-        cap = CarClaimSystem_State.cap(),
+        cap = CarClaimSystem_State.cap(false),
+        trailerCap = CarClaimSystem_State.cap(true),
     })
 end
 
@@ -246,7 +253,10 @@ function CarClaimSystem_Commands.handlers.offer(player, args)
         return CarClaimSystem_reply(player, false, "OfferBusy", target)
     end
 
-    if CarClaimSystem_State.atCap(target) then
+    local trailer = CarClaimSystem.isTrailer(vehicle)
+
+    if CarClaimSystem_State.atCap(target, trailer) then
+        if trailer then return CarClaimSystem_reply(player, false, "TargetTrailerAtCap", target) end
         return CarClaimSystem_reply(player, false, "TargetAtCap", target)
     end
 
@@ -291,7 +301,12 @@ function CarClaimSystem_Commands.handlers.answer(player, args)
         return CarClaimSystem_reply(player, false, "OfferExpired")
     end
 
-    if CarClaimSystem_State.atCap(username) then
+    if CarClaimSystem_State.atCap(username, CarClaimSystem.isTrailer(vehicle)) then
+        if CarClaimSystem.isTrailer(vehicle) then
+            CarClaimSystem_tell(offer.from, false, "TargetTrailerAtCap", username)
+            return CarClaimSystem_reply(player, false, "TrailerAtCap")
+        end
+
         CarClaimSystem_tell(offer.from, false, "TargetAtCap", username)
         return CarClaimSystem_reply(player, false, "AtCap")
     end

@@ -10,6 +10,18 @@ option CarClaimSystem.MaxClaimsPerPlayer
     page = CarClaimSystem, translation = CCS_MaxClaimsPerPlayer,
 }
 
+option CarClaimSystem.MaxTrailerClaimsPerPlayer
+{
+    type = integer, min = 0, max = 1000, default = 2,
+    page = CarClaimSystem, translation = CCS_MaxTrailerClaimsPerPlayer,
+}
+
+option CarClaimSystem.TrailerScripts
+{
+    type = string, default = Trailer*,
+    page = CarClaimSystem, translation = CCS_TrailerScripts,
+}
+
 option CarClaimSystem.InactivityDays
 {
     type = integer, min = 0, max = 3650, default = 30,

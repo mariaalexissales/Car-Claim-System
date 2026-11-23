@@ -27,8 +27,9 @@ CarClaimSystem_State.data = CarClaimSystem_State.data or nil
 --            safehouse  flags for whoever shares a safehouse with the owner right now
 --            script     the vehicle's script name, for the owner's list
 --            x, y, z    the tile it was on when the server last had it loaded
+--            seatless   true when it has nowhere to sit, which makes it a trailer
 --            seenAt     epoch ms of that sighting. claims made before these were kept have
---                       none of the four until the vehicle is next loaded
+--                       none of them until the vehicle is next loaded
 function CarClaimSystem_State.ensure()
     if not CarClaimSystem_State.data then
         CarClaimSystem_State.data = ModData.getOrCreate(TABLE_NAME)
@@ -64,11 +65,16 @@ function CarClaimSystem_State.claimOf(vehicle)
     return CarClaimSystem_State.ensure().claims[key]
 end
 
-function CarClaimSystem_State.countOf(owner)
+-- trailers and cars are counted apart, each against its own limit. trailer is true for the
+-- one and false or nil for the other.
+function CarClaimSystem_State.countOf(owner, trailer)
     local count = 0
+    trailer = trailer == true
 
     for _, claim in pairs(CarClaimSystem_State.ensure().claims) do
-        if claim.owner == owner then count = count + 1 end
+        if claim.owner == owner and CarClaimSystem.isTrailerClaim(claim) == trailer then
+            count = count + 1
+        end
     end
 
     return count
@@ -85,14 +91,15 @@ function CarClaimSystem_State.claimsOf(owner)
     return out
 end
 
-function CarClaimSystem_State.cap()
+function CarClaimSystem_State.cap(trailer)
+    if trailer then return CarClaimSystem.option("MaxTrailerClaimsPerPlayer", 2) end
     return CarClaimSystem.option("MaxClaimsPerPlayer", 3)
 end
 
 -- 0 is no limit.
-function CarClaimSystem_State.atCap(owner)
-    local cap = CarClaimSystem_State.cap()
-    return cap > 0 and CarClaimSystem_State.countOf(owner) >= cap
+function CarClaimSystem_State.atCap(owner, trailer)
+    local cap = CarClaimSystem_State.cap(trailer)
+    return cap > 0 and CarClaimSystem_State.countOf(owner, trailer) >= cap
 end
 
 -- what the vehicle is and where it stands, kept on the record so the owner's list can name a
@@ -103,6 +110,7 @@ function CarClaimSystem_State.note(vehicle, claim)
     if not claim then return end
 
     claim.script = vehicle:getScriptName()
+    claim.seatless = vehicle:getMaxPassengers() == 0
     claim.x = math.floor(vehicle:getX())
     claim.y = math.floor(vehicle:getY())
     claim.z = math.floor(vehicle:getZ())

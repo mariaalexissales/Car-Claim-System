@@ -136,9 +136,66 @@ function CarClaimSystem.isWreck(vehicle)
     return string.contains(name, "Burnt") or string.contains(name, "Smashed")
 end
 
--- a trailer has nowhere to sit and no key, so it is claimed through the car pulling it.
+-- what TrailerScripts holds when the option is missing. every trailer vanilla and KI5 ship,
+-- campers included, has a script name that starts with Trailer.
+CarClaimSystem.TRAILER_DEFAULT = "Trailer*"
+
+local trailerText = nil
+local trailerPatterns = {}
+
+-- one entry of the list as a lua pattern: * is any run of characters, everything else is
+-- itself.
+local function CarClaimSystem_globPattern(glob)
+    local escaped = string.gsub(glob, "[%^%$%(%)%%%.%[%]%+%-%?]", "%%%0")
+    escaped = string.gsub(escaped, "%*", ".*")
+    return "^" .. escaped .. "$"
+end
+
+-- the sandbox list, read again only when its text changes: it is asked for on every sweep.
+-- entries are split on ; and lowercased. an empty option is an empty list.
+function CarClaimSystem.trailerPatterns()
+    local vars = SandboxVars and SandboxVars.CarClaimSystem
+    local text = vars and vars.TrailerScripts
+    if type(text) ~= "string" then text = CarClaimSystem.TRAILER_DEFAULT end
+
+    if text == trailerText then return trailerPatterns end
+
+    trailerText = text
+    trailerPatterns = {}
+
+    for entry in string.gmatch(text, "[^;]+") do
+        entry = string.lower(string.match(entry, "^%s*(.-)%s*$") or "")
+        if entry ~= "" then trailerPatterns[#trailerPatterns + 1] = CarClaimSystem_globPattern(entry) end
+    end
+
+    return trailerPatterns
+end
+
+-- a script on the list, matched with or without its module.
+function CarClaimSystem.isTrailerScript(script)
+    if type(script) ~= "string" or script == "" then return false end
+
+    local full = string.lower(script)
+    local short = string.match(full, "[^.]+$") or full
+
+    for _, pattern in ipairs(CarClaimSystem.trailerPatterns()) do
+        if string.match(full, pattern) or string.match(short, pattern) then return true end
+    end
+
+    return false
+end
+
+-- a trailer is claimed through the car pulling it, counts against its own limit and is
+-- listed apart from cars. one with nowhere to sit is a trailer whatever the list says; the
+-- list is for the ones with seats, like KI5's campers, and for whatever a server adds.
 function CarClaimSystem.isTrailer(vehicle)
-    return vehicle:getMaxPassengers() == 0
+    return vehicle:getMaxPassengers() == 0 or CarClaimSystem.isTrailerScript(vehicle:getScriptName())
+end
+
+-- the same question of a claim whose vehicle may not be loaded, from what the server noted
+-- the last time it was. a claim with nothing noted is counted as a car.
+function CarClaimSystem.isTrailerClaim(claim)
+    return claim.seatless == true or CarClaimSystem.isTrailerScript(claim.script)
 end
 
 -- seat 0 is the driver's.

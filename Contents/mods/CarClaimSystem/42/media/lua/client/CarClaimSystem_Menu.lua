@@ -194,8 +194,10 @@ function CarClaimSystem_Menu.fill(playerObj, context, vehicle)
         if CarClaimSystem.isWreck(vehicle) then return end
 
         local menu = CarClaimSystem_sub(context, title)
-        menu:addOption(CarClaimSystem.text("IGUI_CarClaimSystem_Claim"), nil,
-            CarClaimSystem_onCommandFor, "claim", vehicle:getId(), nil)
+        local label = CarClaimSystem.isTrailer(vehicle) and CarClaimSystem.text("IGUI_CarClaimSystem_ClaimTrailer")
+            or CarClaimSystem.text("IGUI_CarClaimSystem_Claim")
+
+        menu:addOption(label, nil, CarClaimSystem_onCommandFor, "claim", vehicle:getId(), nil)
         return
     end
 
