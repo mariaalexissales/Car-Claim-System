@@ -7,6 +7,7 @@ require "CarClaimSystem_Perms"
 require "CarClaimSystem_Net"
 require "CarClaimSystem_Client"
 require "CarClaimSystem_Panel"
+require "CarClaimSystem_List"
 
 -- the "Vehicle Claim" entry on a vehicle's right-click menu.
 --
@@ -210,11 +211,20 @@ end
 
 -- the vehicle is found the way vanilla finds it for its own entries: the one the player is
 -- in, or the one under the mouse.
+local function CarClaimSystem_onList(_, playerObj)
+    CarClaimSystem_List.open(playerObj)
+end
+
+-- the list is on every right-click, not only a vehicle's: it is how a player finds a car that
+-- is nowhere near them.
 local function CarClaimSystem_onFillWorldObjectContextMenu(player, context, worldobjects, test)
     if test then return end
 
     local playerObj = getSpecificPlayer(player)
     if not playerObj then return end
+
+    context:addOption(CarClaimSystem.text("IGUI_CarClaimSystem_MyVehicles"), nil,
+        CarClaimSystem_onList, playerObj)
 
     local vehicle = playerObj:getVehicle()
         or IsoObjectPicker.Instance:PickVehicle(getMouseXScaled(), getMouseYScaled())

@@ -186,6 +186,51 @@ function CarClaimSystem_Commands.handlers.setGroup(player, args)
     CarClaimSystem_reply(player, true, "Saved")
 end
 
+-- every vehicle the sender has claimed, loaded or not, for the list window. a loaded one is
+-- noted first, so its place is where it is now rather than at the last sweep. a vehicle that
+-- has not been loaded since the claim was made, under a build that did not keep the place,
+-- goes without one.
+function CarClaimSystem_Commands.handlers.list(player, args)
+    local username = CarClaimSystem.nameOf(player)
+    local owned = CarClaimSystem_State.claimsOf(username)
+
+    local loaded = {}
+    if #owned > 0 then
+        CarClaimSystem_State.eachVehicle(function(vehicle)
+            local claim = CarClaimSystem_State.claimOf(vehicle)
+            if claim and claim.owner == username then
+                CarClaimSystem_State.note(vehicle, claim)
+                loaded[claim] = vehicle
+            end
+        end)
+    end
+
+    local now = CarClaimSystem.now()
+    local vehicles = {}
+
+    for _, entry in ipairs(owned) do
+        local claim = entry.claim
+        local vehicle = loaded[claim]
+
+        vehicles[#vehicles + 1] = {
+            key = entry.key,
+            script = claim.script,
+            x = claim.x,
+            y = claim.y,
+            z = claim.z,
+            ago = claim.seenAt and math.max(0, now - claim.seenAt) or nil,
+            loaded = vehicle ~= nil,
+            id = vehicle and vehicle:getId() or nil,
+        }
+    end
+
+    CarClaimSystem_Net.toClient(player, "claims", {
+        vehicles = vehicles,
+        count = #vehicles,
+        cap = CarClaimSystem_State.cap(),
+    })
+end
+
 -- asks an online player to take the vehicle. nothing changes until they say yes.
 function CarClaimSystem_Commands.handlers.offer(player, args)
     local vehicle, claim = CarClaimSystem_owned(player, args)

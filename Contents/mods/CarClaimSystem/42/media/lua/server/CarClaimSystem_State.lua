@@ -25,6 +25,10 @@ CarClaimSystem_State.data = CarClaimSystem_State.data or nil
 --            players    username -> flags. an empty table is a player kept out on purpose
 --            faction    flags for whoever is in the owner's faction right now
 --            safehouse  flags for whoever shares a safehouse with the owner right now
+--            script     the vehicle's script name, for the owner's list
+--            x, y, z    the tile it was on when the server last had it loaded
+--            seenAt     epoch ms of that sighting. claims made before these were kept have
+--                       none of the four until the vehicle is next loaded
 function CarClaimSystem_State.ensure()
     if not CarClaimSystem_State.data then
         CarClaimSystem_State.data = ModData.getOrCreate(TABLE_NAME)
@@ -70,10 +74,39 @@ function CarClaimSystem_State.countOf(owner)
     return count
 end
 
+-- every claim one account holds, as { key, claim } pairs.
+function CarClaimSystem_State.claimsOf(owner)
+    local out = {}
+
+    for key, claim in pairs(CarClaimSystem_State.ensure().claims) do
+        if claim.owner == owner then out[#out + 1] = { key = key, claim = claim } end
+    end
+
+    return out
+end
+
+function CarClaimSystem_State.cap()
+    return CarClaimSystem.option("MaxClaimsPerPlayer", 3)
+end
+
 -- 0 is no limit.
 function CarClaimSystem_State.atCap(owner)
-    local cap = CarClaimSystem.option("MaxClaimsPerPlayer", 3)
+    local cap = CarClaimSystem_State.cap()
     return cap > 0 and CarClaimSystem_State.countOf(owner) >= cap
+end
+
+-- what the vehicle is and where it stands, kept on the record so the owner's list can name a
+-- vehicle that is not loaded. not part of the stamped copy, and no change to rev: nobody's
+-- permissions moved.
+function CarClaimSystem_State.note(vehicle, claim)
+    claim = claim or CarClaimSystem_State.claimOf(vehicle)
+    if not claim then return end
+
+    claim.script = vehicle:getScriptName()
+    claim.x = math.floor(vehicle:getX())
+    claim.y = math.floor(vehicle:getY())
+    claim.z = math.floor(vehicle:getZ())
+    claim.seenAt = CarClaimSystem.now()
 end
 
 local function CarClaimSystem_copyPlayers(players)
@@ -137,6 +170,7 @@ function CarClaimSystem_State.create(vehicle, owner)
     }
 
     CarClaimSystem_State.ensure().claims[key] = claim
+    CarClaimSystem_State.note(vehicle, claim)
     CarClaimSystem_State.stamp(vehicle)
 
     return claim
@@ -159,6 +193,7 @@ function CarClaimSystem_State.reassign(vehicle, claim, owner)
     claim.lastSeen = CarClaimSystem.now()
 
     CarClaimSystem_State.touch(claim)
+    CarClaimSystem_State.note(vehicle, claim)
     CarClaimSystem_State.stamp(vehicle)
 end
 
