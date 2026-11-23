@@ -1,0 +1,83 @@
+name: checks
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  mod-files:
+    name: mod files are valid
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      # the checks live in estral-tools, which is private, so this needs the
+      # read-only deploy key. it lands inside the checkout, gitignored, and the
+      # scripts read the mod out of the working directory, not their own location.
+      - uses: actions/checkout@v7
+        with:
+          repository: mariaalexissales/estral-tools
+          ssh-key: ${{ secrets.ESTRAL_TOOLS_KEY }}
+          path: estral-tools
+          persist-credentials: false
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      # a lua syntax error only shows up once the game loads the file.
+      - name: lua files parse
+        run: |
+          pip install --quiet luaparser==4.2.0
+          python estral-tools/car-claim-system/check_lua.py
+
+      # the game runs kahlua, which has no next(), io or load. a call to one
+      # parses and lints clean, then is a call on nil the first time it's reached.
+      - name: lua only calls what the game's lua has
+        run: python estral-tools/car-claim-system/check_runtime.py
+
+      # a translation is a java format string. a stray % or an argument short is an error
+      # in the log on every call and a mangled line on screen, and no parse or test sees it.
+      - name: translation strings are ones the game can format
+        run: python estral-tools/car-claim-system/check_translations.py
+
+      # steam refuses an upload whose description reaches 8,000 bytes, and the
+      # game's id lines count.
+      - name: workshop page fits steam's limit
+        run: python estral-tools/workshop/check_length.py
+
+  lua-tests:
+    name: lua does what it should
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/checkout@v7
+        with:
+          repository: mariaalexissales/estral-tools
+          ssh-key: ${{ secrets.ESTRAL_TOOLS_KEY }}
+          path: estral-tools
+          persist-credentials: false
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - run: pip install --quiet lupa==2.8
+
+      # runs the mod's lua behind a stub of the game: who holds which flag, every
+      # claim command a client can send, and the server's seat, tow and idle sweeps.
+      - name: tests pass
+        run: python estral-tools/car-claim-system/harness/run_tests.py

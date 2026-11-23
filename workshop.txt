@@ -1,0 +1,110 @@
+version=1
+id=
+title=Car Claim System
+description=[h1]Car Claim System[/h1]
+description=[h2]Your car, your rules[/h2]
+description=[b]Claim a vehicle, then decide who may ride in it, drive it, open its storage, work on it or tow it.[/b]
+description=
+description=Right-click a vehicle and open [b]Vehicle Claim[/b]. Claiming needs the vehicle's key (or a hotwire) and you standing next to it.
+description=
+description=[hr][/hr]
+description=[h2]What a Claim Stops[/h2]
+description=Without your say-so, nobody can:
+description=[list]
+description=[*] get in, or take the driver's seat
+description=[*] open the trunk, glovebox or seat storage
+description=[*] remove, install or repair parts, let the tyres down or siphon the tank
+description=[*] hotwire it, smash its windows or work its locks
+description=[*] hitch it to anything, or unhitch it
+description=[/list]
+description=
+description=Anyone can still put fuel in. Burnt and smashed wrecks cannot be claimed, so nobody can claim a wreck to block a road.
+description=
+description=[hr][/hr]
+description=[h2]Five Separate Permissions[/h2]
+description=[list]
+description=[*] [b]Passenger[/b] - get in, use the doors, locks and windows
+description=[*] [b]Drive[/b] - the driver's seat and the engine
+description=[*] [b]Storage[/b] - the trunk and every container
+description=[*] [b]Mechanics[/b] - parts, repairs, tyres, the hood, siphoning
+description=[*] [b]Tow[/b] - hitching and unhitching
+description=[/list]
+description=
+description=Each one is its own tick. Letting a friend ride along does not let them strip the engine.
+description=
+description=[hr][/hr]
+description=[h2]Who Gets Them[/h2]
+description=[list]
+description=[*] [b]My Faction[/b] and [b]My Safehouse[/b] - follow who is in the group right now. Someone who joins gets access, someone kicked loses it at once
+description=[*] [b]Nearby Players[/b] - pick someone standing within ten tiles
+description=[*] [b]Online Players[/b] - pick anyone connected
+description=[/list]
+description=
+description=A player's own entry overrides the groups, so one faction member can be kept out of a car the rest can use. [b]View Permissions[/b] shows everyone with access in one table, online or not.
+description=
+description=[hr][/hr]
+description=[h2]Passing It On[/h2]
+description=[b]Transfer Ownership[/b] sends an offer to an online player, who has a minute to accept. The permission list is wiped when the car changes hands. Claims belong to the account, so they survive your character dying.
+description=
+description=[hr][/hr]
+description=[h2]For Server Owners[/h2]
+description=Three sandbox options:
+description=[list]
+description=[*] [b]Claims Per Player[/b] - default 3
+description=[*] [b]Claim Expiry[/b] - a claim lapses when its owner has not logged in for this many real days, default 30
+description=[*] [b]Idle Engine Shut-off[/b] - any vehicle left running with nobody in the driver's seat is switched off after this many real minutes, default 10
+description=[/list]
+description=Set any of them to 0 to turn it off.
+description=
+description=Admins pass every check, and can release a claim or hand it to someone else from the same menu. Both are written to the server log.
+description=
+description=[b]The server decides.[/b] Claims are kept by the server, not on the vehicle. Parts, fuel, locks and hotwiring are refused server-side. Somebody sitting where they may not has the engine cut and is put out once the car stops, and a hitch that was not allowed is undone.
+description=
+description=[hr][/hr]
+description=[h2]Contributions[/h2]
+description=Ideas or bug reports? Workshop comments or reach out directly. I know it isn't perfect, so all forms of input are welcome!
+description=
+description=[hr][/hr]
+description=[h1]Join Our Community![/h1]
+description=Have questions, suggestions, or need support? Join the official Discord server to stay updated on future releases and connect with other players!
+description=👉[url=https://discord.gg/heXQBtYUZb]Click here to join the Discord server[/url]
+description=[url=https://ko-fi.com/estralexe][img]https://i.imgur.com/S6apsIQ.gif[/img][/url]
+description=[url=https://www.twitch.tv/estralexe][img]https://i.imgur.com/FabN9Nh.gif[/img][/url]
+description=
+description=[hr][/hr]
+description=[h2]More From Estral[/h2]
+description=Check out my other mods while you’re at it:
+description=
+description=[url=https://steamcommunity.com/sharedfiles/filedetails/?id=3791631305][img]https://images.steamusercontent.com/ugc/10550109030485225665/A79EED3FC204D4945A5842ACFCD964749B4F39EE/[/img][/url]
+description=[b]Pinoy Pantry[/b]
+description=Sarap ng Pinas in Knox Country
+description=
+description=[url=https://steamcommunity.com/sharedfiles/filedetails/?id=3794717412][img]https://images.steamusercontent.com/ugc/10017484433944652614/60E3AF0B951E328D2880E7363BF820701BB54E2F/[/img][/url]
+description=[b]Quest System Framework[/b]
+description=Add quests to your multiplayer servers
+description=
+description=[url=https://steamcommunity.com/sharedfiles/filedetails/?id=3795596462][img]https://images.steamusercontent.com/ugc/17894628963991674168/9F2F1791EF6C7891106FABB38FE7D35F7BECF314/[/img][/url]
+description=[b]Player Leaderboard System[/b]
+description=Have your players fight for first place, or keep track of your best lives in solo
+description=
+description=[url=https://steamcommunity.com/sharedfiles/filedetails/?id=3799346338][img]https://images.steamusercontent.com/ugc/16978772379826731736/09B7859AB47474217FC3504E07DA9493103F542C/[/img][/url]
+description=[b]Remove Vanilla Anything[/b]
+description=For those who are tired of seeing vanilla items in their heavily modded servers
+description=
+description=[url=https://steamcommunity.com/sharedfiles/filedetails/?id=3746632343][img]https://images.steamusercontent.com/ugc/15813353898320562803/21D8A18963A880E6C1ED8AD9122946EFC6AC5A7B/[/img][/url]
+description=[b]Bundle Up! - A Packing Mod[/b]
+description=To organize all of your excessive stuff
+description=
+description=[url=https://steamcommunity.com/sharedfiles/filedetails/?id=3800241753][img]https://images.steamusercontent.com/ugc/16485154806146051588/96977B7CB045B7166D5FCBB970FC886F2A322EE5/[/img][/url]
+description=[b]Dead Court Deck[/b]
+description=For your [strike]scalper[/strike] collectable needs!
+description=
+description=[url=https://steamcommunity.com/sharedfiles/filedetails/?id=3809376465][img]https://images.steamusercontent.com/ugc/14562058275516331001/A6E0C864A8C7DFCDAA20888EA3F10CACEE49586B/[/img][/url]
+description=[b]LAPLACE//DAEMON[/b]
+description=Every blade you forge rolls a rarity, and a fortune
+description=
+description=[url=https://steamcommunity.com/sharedfiles/filedetails/?id=3817487234][img]https://images.steamusercontent.com/ugc/10073362432239695266/68F7ADC9A867397E451AE33871F422B14C19E7CF/[/img][/url]
+description=[b]zBay[/b]
+description=Buy, sell and bid with your server’s own currency
+tags=Build 42;Misc;Multiplayer;QoL;Vehicles;WIP
+visibility=public
