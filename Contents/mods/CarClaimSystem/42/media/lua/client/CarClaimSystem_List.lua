@@ -8,7 +8,7 @@ require "ISUI/ISButton"
 require "CarClaimSystem_Core"
 require "CarClaimSystem_Net"
 
--- every vehicle the player has claimed, loaded or not: what it is, the tile it was last seen
+-- every vehicle the player has claimed, loaded or not, cars and trailers apart: what it is, the tile it was last seen
 -- on, how far that is from them, and how long ago that was. the server holds the only full
 -- record, so the window asks for it when it opens and when Refresh is pressed, and draws what
 -- comes back.
@@ -75,6 +75,12 @@ local function CarClaimSystem_drawRow(list, y, item, alt)
     local row = item.item
     local textY = y + (ROW_H - FONT_H) / 2
 
+    if row.header then
+        list:drawRect(0, y, list:getWidth(), ROW_H, 0.5, 0.15, 0.15, 0.15)
+        list:drawText(row.label, PAD, textY, 0.95, 0.8, 0.45, 1, FONT)
+        return y + ROW_H
+    end
+
     if alt then list:drawRect(0, y, list:getWidth(), ROW_H, 0.25, 0.2, 0.2, 0.2) end
 
     for index, column in ipairs(COLUMNS) do
@@ -118,13 +124,36 @@ function CarClaimSystem_List:request()
     CarClaimSystem_Net.toServer("list", {})
 end
 
--- one row per vehicle, nearest first. a vehicle with no known place goes to the bottom.
+local function CarClaimSystem_byDistance(a, b)
+    if a.dist and b.dist and a.dist ~= b.dist then return a.dist < b.dist end
+    if (a.dist == nil) ~= (b.dist == nil) then return a.dist ~= nil end
+    return a.name < b.name
+end
+
+-- a section's heading, with how many it holds against its limit. 0 is no limit.
+local function CarClaimSystem_heading(trailer, count, cap)
+    if trailer then
+        if cap > 0 then
+            return CarClaimSystem.text("IGUI_CarClaimSystem_SectionTrailers", tostring(count), tostring(cap))
+        end
+        return CarClaimSystem.text("IGUI_CarClaimSystem_SectionTrailersNoCap", tostring(count))
+    end
+
+    if cap > 0 then
+        return CarClaimSystem.text("IGUI_CarClaimSystem_SectionCars", tostring(count), tostring(cap))
+    end
+    return CarClaimSystem.text("IGUI_CarClaimSystem_SectionCarsNoCap", tostring(count))
+end
+
+-- cars, then trailers, each under its own heading and nearest first. a vehicle with no known
+-- place goes to the bottom of its section. a section with nothing in it keeps its heading, so
+-- the limit is on show either way.
 function CarClaimSystem_List:fill(args)
     self.waiting = false
     self.list:clear()
 
     local px, py = self.playerObj:getX(), self.playerObj:getY()
-    local rows = {}
+    local cars, trailers = {}, {}
 
     for _, entry in ipairs(type(args.vehicles) == "table" and args.vehicles or {}) do
         local x, y = tonumber(entry.x), tonumber(entry.y)
@@ -142,26 +171,26 @@ function CarClaimSystem_List:fill(args)
             row.distance = CarClaimSystem.text("IGUI_CarClaimSystem_Tiles", tostring(dist))
         end
 
-        rows[#rows + 1] = row
+        local into = entry.trailer == true and trailers or cars
+        into[#into + 1] = row
     end
 
-    table.sort(rows, function(a, b)
-        if a.dist and b.dist and a.dist ~= b.dist then return a.dist < b.dist end
-        if (a.dist == nil) ~= (b.dist == nil) then return a.dist ~= nil end
-        return a.name < b.name
-    end)
+    if #cars + #trailers == 0 then return end
 
-    for _, row in ipairs(rows) do
-        self.list:addItem(row.name, row)
-    end
+    local sections = {
+        { trailer = false, rows = cars, cap = tonumber(args.cap) or 0 },
+        { trailer = true, rows = trailers, cap = tonumber(args.trailerCap) or 0 },
+    }
 
-    local count = tonumber(args.count) or #rows
-    local cap = tonumber(args.cap) or 0
+    for _, section in ipairs(sections) do
+        table.sort(section.rows, CarClaimSystem_byDistance)
 
-    if cap > 0 then
-        self:setTitle(CarClaimSystem.text("IGUI_CarClaimSystem_ListTitle", tostring(count), tostring(cap)))
-    else
-        self:setTitle(CarClaimSystem.text("IGUI_CarClaimSystem_ListTitleNoCap", tostring(count)))
+        local label = CarClaimSystem_heading(section.trailer, #section.rows, section.cap)
+        self.list:addItem(label, { header = true, label = label })
+
+        for _, row in ipairs(section.rows) do
+            self.list:addItem(row.name, row)
+        end
     end
 end
 
