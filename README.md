@@ -6,6 +6,7 @@ A Project Zomboid (Build 42) multiplayer mod. Claim a vehicle, then decide who m
 - Grant flags to **My Faction**, **My Safehouse**, or one player picked from **Nearby Players** or **Online Players**. The five flags are independent: Passenger, Drive, Storage, Mechanics, Tow.
 - Faction and safehouse grants follow live membership. A player's own entry overrides the groups.
 - **View Permissions** lists everyone with access in one table.
+- **Claimed Vehicles**, on any right-click, lists every vehicle you have claimed: what it is, the tile it was last seen on, how far that is from you and how long ago the server last had it loaded.
 - **Transfer Ownership** sends an offer the other player has to accept. The permission list is wiped on transfer.
 - Admins pass every check and can release or reassign a claim.
 - Any vehicle left running with nobody in the driver's seat is switched off after a while.

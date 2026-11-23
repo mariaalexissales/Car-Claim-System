@@ -142,7 +142,8 @@ end
 -- once a minute: owners who are on are marked as seen, old claims lapse, and every loaded
 -- vehicle is looked over. a wreck loses its claim; a stamped copy that is not the server's is
 -- stamped again, which is also how a lapsed claim leaves a vehicle that was not loaded then;
--- a hitch made before the last restart is learned again.
+-- a hitch made before the last restart is learned again; and where each claimed one stands is
+-- written down for its owner's list.
 function CarClaimSystem_Enforce.sweep(now)
     local online = {}
     CarClaimSystem_State.eachPlayer(function(player)
@@ -158,11 +159,16 @@ function CarClaimSystem_Enforce.sweep(now)
     CarClaimSystem_Commands.expireOffers(now)
 
     CarClaimSystem_State.eachVehicle(function(vehicle)
-        if CarClaimSystem_State.claimOf(vehicle) and CarClaimSystem.isWreck(vehicle) then
+        local claim = CarClaimSystem_State.claimOf(vehicle)
+
+        if claim and CarClaimSystem.isWreck(vehicle) then
             CarClaimSystem_State.release(vehicle)
+            claim = nil
         elseif CarClaimSystem_State.stale(vehicle) then
             CarClaimSystem_State.stamp(vehicle)
         end
+
+        if claim then CarClaimSystem_State.note(vehicle, claim) end
 
         local towed = vehicle:getVehicleTowing()
         if towed and not CarClaimSystem_Enforce.tows[vehicle:getId()] then

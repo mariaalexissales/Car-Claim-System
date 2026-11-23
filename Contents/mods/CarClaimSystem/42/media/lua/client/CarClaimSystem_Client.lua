@@ -72,6 +72,9 @@ function CarClaimSystem_Client.onCommand(module, command, args)
         CarClaimSystem_showOffer(player, args)
     elseif command == "forceExit" then
         CarClaimSystem_forceExit(player)
+    elseif command == "claims" then
+        -- looked up here: the list window's file requires this one.
+        if CarClaimSystem_List then CarClaimSystem_List.receive(args) end
     end
 end
 
